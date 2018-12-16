@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"reflect"
 	"strconv"
+	"strings"
 )
 
 type bstring struct {
@@ -44,5 +45,27 @@ func (i Int) BencodeInt() (bstring String) {
 
 func (s String) BencodeString() (bstring String) {
 	bstring = String(strconv.Itoa(len(s)) + ":") + s
+	return
+}
+
+func (bstring bstring) Bdecode() (item interface{}) {
+	switch bstring.ItemType {
+	case reflect.String:
+		return bstring.BdecodeString()
+	case reflect.Int:
+		return bstring.BdecodeInt()
+	default:
+		return nil
+	}
+}
+
+func (bstring bstring) BdecodeString() (item string) {
+	item = strings.Split(string(bstring.Bstring), ":")[1]
+	return
+}
+
+func (bstring bstring) BdecodeInt() (item int) {
+	a := strings.Trim(strings.Trim(string(bstring.Bstring), "i"), "e")
+	item, _ = strconv.Atoi(a)
 	return
 }
